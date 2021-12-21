@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spliit</title>
+    <link href="css/bootstrap.css" rel="stylesheet"/>
+    <link href="css/index.css" rel="stylesheet"/>
+</head>
+<body>
+
+<!--<nav class="navbar navbar-dark bg-dark sticky-top">-->
+<!--    <div class="container-fluid">-->
+<!--        <a class="navbar-brand" href="#">Spliit</a>-->
+
+<!--    </div>-->
+
+<!--</nav>-->
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <span class="navbar-brand" href="#">Spliit</span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+                aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-auto">
+                <li class="nav-item">
+                    <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#new-split-modal">New
+                        Split
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <span class="nav-link" href="#">/</span>
+                </li>
+
+                <li class="nav-item">
+                    <input type="file" id="file-selector" hidden="hidden" />
+                    <button class="btn btn-outline-light" id="import-button">Import</button>
+                </li>
+
+                <li class="nav-item">
+                    <span class="nav-link" href="#">or drag and drop</span>
+                </li>
+
+            </ul>
+            <button class="btn btn-outline-danger mx-1" data-bs-toggle="modal" data-bs-target="#delete-all-confirm-modal">Delete all</button>
+            <button class="btn btn-outline-light" id="save-button">Save</button>
+        </div>
+    </div>
+</nav>
+
+<ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="record-tab" data-bs-toggle="tab" data-bs-target="#records" type="button"
+                role="tab">Records
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats" type="button"
+                role="tab">Stats
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="graph-tab" data-bs-toggle="tab" data-bs-target="#graph" type="button"
+                role="tab">Graph
+        </button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="setting-tab" data-bs-toggle="tab" data-bs-target="#setting" type="button"
+                role="tab">Setting
+        </button>
+    </li>
+</ul>
+
+
+<div class="tab-content" id="tab-content">
+    <!--Table-->
+    <div class="tab-pane fade show active" id="records" role="tabpanel">
+        <div class="container main-container">
+            <div class="col-11">
+                <table class="table" id="record-table">
+                    <thead id="record-table-head">
+<!--                    <tr id="colNames">-->
+<!--                        <th scope="col">#</th>-->
+<!--                        <th scope="col">Description</th>-->
+<!--                        <th scope="col">Total</th>-->
+<!--                        <th scope="col">Payer</th>-->
+
+<!--                    </tr>-->
+                    </thead>
+                    <tbody id="record-table-body">
+                    </tbody>
+                </table>
+
+
+            </div>
+
+            <button type="button" class="btn btn-outline-dark" id="newRecordButton">
+                <img src="img/bootstrap-icons/plus.svg" alt="+" width="24"/>
+                New Record
+            </button>
+        </div>
+    </div>
+
+    <!--    Stats-->
+    <div class="tab-pane fade" id="stats" role="tabpanel">
+        <div class="container">
+            <table class="table" id="stats-table">
+                <tbody id="stats-table-body">
+
+
+                </tbody>
+            </table>
+            <button class="btn btn-outline-success" id="stats-update-button">Update</button>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="graph" role="tabpanel">3</div>
+    <div class="tab-pane fade" id="setting" role="tabpanel">
+
+        <!--Setting Start-->
+        <div class="container setting-container">
+            <div class="input-group mb-3">
+                <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="checkbox" value=""
+                           aria-label="Checkbox for following text input">
+                </div>
+                <span class="input-group-text">Enable Tax:</span>
+                <input type="text" class="form-control" aria-label="Text input with checkbox" value="0">
+                <span class="input-group-text">%</span>
+            </div>
+        </div>
+        <!--Setting End-->
+
+    </div>
+</div>
+
+<div class="modal fade" id="new-split-modal" tabindex="-1" >
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create a new Split</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="newSplitModalForm">
+
+                <div id="input-alert"></div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">#</span>
+                    <input type="text" aria-label="member-number" class="form-control" id="member-number"
+                           placeholder="How many members">
+                </div>
+
+                <div id="member-names">
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="create-new-split-button">Create
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="delete-confirm-modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirming record deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you going to delete this record?</p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="delete-confirm-button">Yes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="delete-all-confirm-modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirming all records deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you going to delete all the records?</p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="delete-all-confirm-button">Yes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="save-file-modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirming file save</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="filename-input" class="col-form-label">Filename:</label>
+                <input type="text" class="form-control" id="filename-input" placeholder="data.json"/>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="save-file-confirm-button">Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="js/bootstrap.bundle.js"></script>
+<script src="js/jquery-3.6.0.min.js"></script>
+<script src="js/spliter.js"></script>
+<script src="js/helper.js"></script>
+<script src="js/listeners.js"></script>
+<script src="js/index.js"></script>
+</body>
+</html>

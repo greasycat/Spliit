@@ -1,0 +1,33 @@
+body {
+    height: 1000px;
+}
+
+.col {
+}
+
+.expense-row {
+
+}
+
+.edit-entry {
+}
+
+.main-container {
+}
+
+.setting-container {
+    padding-top: 10px;
+}
+
+.toolbox {
+    top: 70px;
+    left: 5%;
+    position: fixed;
+}
+
+.navbar-text {
+}
+
+#add-record:hover {
+    background-color: lightgray;
+}
