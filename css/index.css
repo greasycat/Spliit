@@ -5,6 +5,15 @@ body {
 .col {
 }
 
+.record-index-green {
+    border-left: 7px solid darkgreen ;
+}
+
+.record-index-grey {
+
+    border-left: 7px solid lightgray;
+}
+
 .expense-row {
 
 }

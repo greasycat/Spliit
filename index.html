@@ -61,11 +61,11 @@
                 role="tab">Stats
         </button>
     </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="graph-tab" data-bs-toggle="tab" data-bs-target="#graph" type="button"
-                role="tab">Graph
-        </button>
-    </li>
+<!--    <li class="nav-item" role="presentation">-->
+<!--        <button class="nav-link" id="graph-tab" data-bs-toggle="tab" data-bs-target="#graph" type="button"-->
+<!--                role="tab">Graph-->
+<!--        </button>-->
+<!--    </li>-->
 
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="setting-tab" data-bs-toggle="tab" data-bs-target="#setting" type="button"
@@ -97,9 +97,14 @@
 
             </div>
 
-            <button type="button" class="btn btn-outline-dark" id="newRecordButton">
+            <button type="button" class="btn btn-outline-success" id="new-record-button">
                 <img src="img/bootstrap-icons/plus.svg" alt="+" width="24"/>
-                New Record
+                New Item
+            </button>
+
+            <button type="button" class="btn btn-outline-dark" id="new-gratuity">
+                <img src="img/bootstrap-icons/plus.svg" alt="+" width="24"/>
+                New Non-Taxable Item
             </button>
         </div>
     </div>
@@ -116,19 +121,33 @@
             <button class="btn btn-outline-success" id="stats-update-button">Update</button>
         </div>
     </div>
-    <div class="tab-pane fade" id="graph" role="tabpanel">3</div>
+<!--    <div class="tab-pane fade" id="graph" role="tabpanel">-->
+
+<!--        <canvas id="graph-canvas">-->
+
+<!--        </canvas>-->
+<!--    </div>-->
     <div class="tab-pane fade" id="setting" role="tabpanel">
 
         <!--Setting Start-->
         <div class="container setting-container">
             <div class="input-group mb-3">
                 <div class="input-group-text">
-                    <input class="form-check-input mt-0" type="checkbox" value=""
-                           aria-label="Checkbox for following text input">
+                    <input class="form-check-input mt-0 " type="checkbox" value=""
+                           aria-label="Checkbox for following text input" id="enable-tax-checkbox">
                 </div>
                 <span class="input-group-text">Enable Tax:</span>
-                <input type="text" class="form-control" aria-label="Text input with checkbox" value="0">
+                <input type="text" class="form-control" aria-label="Text input with checkbox" value="0" id="tax-input">
                 <span class="input-group-text">%</span>
+
+            </div>
+
+            <div class="input-group mb-3">
+                <div class="input-group-text">
+                    <input class="form-check-input mt-0 " type="checkbox" value=""
+                           aria-label="Checkbox for following text input" id="payee-checkable-checkbox">
+                </div>
+                <span class="input-group-text">Enable Payee Checkbox</span>
             </div>
         </div>
         <!--Setting End-->

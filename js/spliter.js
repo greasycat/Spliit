@@ -41,8 +41,8 @@ class RelationTable {
     makeBalanceRelations(members = new Set()) {
         this._balanceRelations = []
         let arr = Array.from(members)
-        for (let i = 0; i < arr.length - 1; ++i) {
-            for (let j = i + 1; j < arr.length; ++j) {
+        for (let i = 0; i < arr.length; ++i) {
+            for (let j = i; j < arr.length; ++j) {
                 this._balanceRelations.push(new BalanceRelation(arr[i], arr[j], 0))
             }
         }
@@ -75,14 +75,6 @@ class RelationTable {
         })
     }
 
-    // exportRelationToJson ()  {
-    //     return JSON.stringify(this.balanceRelations)
-    // }
-    //
-    // restoreRelationFromJson (json = "")  {
-    //     this.balanceRelations = JSON.parse(json)
-    // }
-
 }
 
 class Record {
@@ -93,18 +85,20 @@ class Record {
     payers = new Set()
     payee = ""
     total = 0
+    isGratuity = false
 
-    constructor(description = "", payers = new Set(), payee = "", total = 0, date = "", note = "") {
+    constructor(description = "", payers = new Set(), payee = "", total = 0, date = "", note = "", isGratuity = false) {
         this.description = description
         this.payers = payers
         this.payee = payee
         this.total = total
         this.date = date
         this.note = note
+        this.isGratuity = isGratuity
     }
 
     serialize() {
-        return new Record(this.description, Array.from(this.payers), this.payee, this.total, this.date, this.note)
+        return new Record(this.description, Array.from(this.payers), this.payee, this.total, this.date, this.note, this.isGratuity)
     }
 }
 
@@ -175,8 +169,8 @@ class Spliter {
     Record operations
      */
 
-    addRecord(description, payers, payee, total, date, note) {
-        let record = new Record(description, payers, payee, total, date, note)
+    addRecord(description, payers, payee, total, date, note, isGratuity) {
+        let record = new Record(description, payers, payee, total, date, note, isGratuity)
         this._data.records.push(record)
         return record
     }
@@ -195,17 +189,19 @@ class Spliter {
         this._data.records = []
     }
 
+    getRelation(member1, member2) {
+        return this._data.relations.getRelation(member1, member2)
+    }
 
     /*
     Relation operations
      */
 
-    updateRelations() {
-        // if (this._data.records !== undefined && this._data.records.length !== 0) {
+    updateRelations(taxMultiplier = 1) {
             this._data.relations.remakeBalanceRelation()
             this._data.records.forEach((record) => {
                 if (this._data.relations.hasMember(record.payee)) {
-                    let average = record.total / (record.payers.size + 1)
+                    let average = (record.isGratuity ? record.total : record.total*taxMultiplier) / (record.payers.size)
                     record.payers.forEach((payer) => {
                         if (this._data.relations.hasMember(payer)) {
                             this._data.relations.addBalance(payer, record.payee, average)
@@ -213,7 +209,6 @@ class Spliter {
                     })
                 }
             })
-        // }
     }
 
     relationsForEach(callback) {
@@ -227,10 +222,13 @@ class Spliter {
     /* Calculation */
 
 
-    calculatorGroupTotal() {
+    calculatorGroupTotal(taxMultiplier) {
         let sum = 0
         this.recordsForEach((record) => {
-            sum += record.total;
+            if (record.isGratuity)
+                sum += record.total
+            else
+                sum += record.total*taxMultiplier;
         })
         return sum
     }
@@ -238,16 +236,14 @@ class Spliter {
     Save/Restore
     */
 
-    importFromJSON(json) {
-        let importData = JSON.parse(json)
-        this.newTable(new Set(importData[0]))
-        this._data.records = importData[1].map(rawRecord => new Record(rawRecord.description, new Set(rawRecord.payers), rawRecord.payee, rawRecord.total, rawRecord.date, rawRecord.note))
+    import(members, records) {
+        this.newTable(new Set(members))
+        this._data.records = records.map(rawRecord => new Record(rawRecord.description, new Set(rawRecord.payers), rawRecord.payee, rawRecord.total, rawRecord.date, rawRecord.note, rawRecord.isGratuity))
     }
 
-    exportToJSON() {
-        let exportData = [Array.from(this._data.relations._members),
+    export() {
+        return [Array.from(this._data.relations._members),
             this._data.records.map((record) => record.serialize())]
-        return JSON.stringify(exportData)
     }
 }
 

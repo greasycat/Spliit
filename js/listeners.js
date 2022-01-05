@@ -2,16 +2,10 @@
 Global variables
  */
 
-let currentRow = undefined
-let filename = "data.json"
 
 /*
 UI Effects
  */
-function entryDoubleClick() {
-    isEntrySelected = true;
-    currentSelectedEntry = $(this);
-}
 
 function entryMouseEnter() {
     $(this).addClass("table-active")
@@ -35,15 +29,14 @@ function onNameInput() {
     let i = parseInt($(this).attr("id").split("-")[1])-1
 
     let format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/
-    if (!input.match(format) && names.findIndex((item) => item === input) === -1)
+    if (!input.match(format) && temporaryNames.findIndex((item) => item === input) === -1)
     {
         $(this).removeClass("bg-danger")
-        names[i] = input
+        temporaryNames[i] = input
     } else {
         $(this).addClass("bg-danger")
-        name[i] = ""
+        temporaryNames[i] = ""
     }
-    console.log(names)
 }
 
 
@@ -51,12 +44,12 @@ function onNameInput() {
 function onMemberNumberChange() {
     let num = parseInt($(this).val())
     if (!isNaN(num))  {
-        let memberNames = $("#member-names")
-        memberNames.empty()
-        names = new Array(num).fill("")
+        let memberNamesDiv = $("#member-names")
+        memberNamesDiv.empty()
+        temporaryNames = new Array(num).fill("")
         for (let i = 1; i <= num; ++i) {
             let inputElement = generateMemberNameHTML(i)
-            memberNames.append(inputElement)
+            memberNamesDiv.append(inputElement)
             $(`#member-${i}`).on("input", onNameInput)
         }
     }
@@ -65,14 +58,14 @@ function onMemberNumberChange() {
 function newSplitButtonClick() {
     let num = parseInt($("#member-number").val())
     if (Number.isInteger(num)) {
-        console.log("" in names)
-        if (names.includes("")) {
+        console.log("" in temporaryNames)
+        if (temporaryNames.includes("")) {
             console.log("Incorrect names")
             $("#input-alert").append(generateAlertHTML("Please fill all the names"))
         } else {
             $("#new-split-modal").modal('toggle')
 
-            spliter.newTable(new Set(names))
+            spliter.newTable(new Set(temporaryNames))
             resetNewSplitModal()
             resetTable()
 
@@ -104,9 +97,9 @@ function onPayeeChange() {
         let index = getRowIndex($(this))
         changeDisabledCheckbox(index, name)
         spliter.setRecordPayee(index, name)
-        spliter.setRecordPayers(index, new Set()) //Empty previous payers array
+        spliter.setRecordPayers(index, new Set([name])) //Empty previous payers array
     }
-    console.log(spliter.getRecordPayee(getRowIndex($(this))))
+    // console.log(spliter.getRecordPayee(getRowIndex($(this))))
     saveLocalStorage()
 }
 
@@ -123,7 +116,7 @@ function onTotalChange() {
     }
 
     saveLocalStorage()
-    console.log(value)
+    // console.log(value)
 
 }
 
@@ -148,6 +141,7 @@ function onPayerChange() {
         previousPayer.delete(info[2])
     }
     spliter.setRecordPayers(info[1], previousPayer)
+    // console.log(previousPayer)
     saveLocalStorage()
 }
 
@@ -155,7 +149,6 @@ function deleteButtonClick() {
 
     currentRow = getRowIndex($(this))
     $("#delete-confirm-modal").modal("toggle")
-    // spliter.deleteRecord(getRowIndex($(this)))
 }
 
 function deleteConfirmButtonClick() {
@@ -187,6 +180,29 @@ function onStatsTabClick() {
 
 
 /*
+Setting tab
+ */
+
+function onTaxCheckboxClick() {
+    Setting.isTaxEnabled = $(this).prop("checked")
+    saveLocalStorage()
+}
+
+function onTaxInput() {
+    let taxRate = parseFloat($(this).val())
+    if (!isNaN(taxRate))
+        Setting.taxRate = taxRate
+    saveLocalStorage()
+}
+
+function onPayeeCheckableCheckboxClick()
+{
+    Setting.isPayeeCheckable = $(this).prop("checked")
+    resetTable()
+    saveLocalStorage()
+}
+
+/*
 Data Import and Export
  */
 
@@ -198,15 +214,15 @@ function onFilenameChange() {
     let temp = $(this).val()
     console.log(temp)
     if (temp !== "" && temp !== undefined) {
-        filename = temp
+        Setting.filename = temp
     }
 }
 
 function saveConfirmButtonClick()
 {
     let a = document.createElement("a");
-    a.href = window.URL.createObjectURL(new Blob([spliter.exportToJSON()], {type: "text/plain"}));
-    a.download = filename;
+    a.href = window.URL.createObjectURL(new Blob([exportToJSON()], {type: "text/plain"}));
+    a.download = Setting.filename;
     a.click();
     $("#save-file-modal").modal("toggle")
 }

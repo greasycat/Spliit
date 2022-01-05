@@ -1,4 +1,3 @@
-let deleteTimeoutID = 0;
 
 function generateMemberNameHTML(i) {
     return `<div class="input-group">
@@ -12,6 +11,11 @@ function generateAlertHTML(message) {
     return `<div class="alert alert-danger alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`
 }
 
+function resetNewSplitModal() {
+    $("#memberNumber").val("")
+    $("#memberNames").empty()
+    $('#inputAlerts').empty()
+}
 
 function applyTableHead(spliter, enableDate = false, enableNote = false) {
 
@@ -43,6 +47,7 @@ function resetTable() {
     emptyTableBody()
     applyTableHead(spliter)
     applyTableBody(spliter)
+    updateSetting()
 }
 
 function emptyTableHead() {
@@ -72,12 +77,16 @@ function applyTableBody(spliter, enableDate = false, enableNote = false) {
 }
 
 function applyRecord(record, index) {
+    let indexColor = record.isGratuity ?  "record-index-grey":"record-index-green"
+
     let tableBody = $("#record-table-body")
     tableBody.append(`<tr id="record-${index}"></tr>`)
     let recordRow = $(`#record-${index}`)
 
+    console.log(record.isGratuity)
+
     //Basic info
-    recordRow.append(`<th scope="row">${index}</th>
+    recordRow.append(`<th scope="row" class=" border-end ${indexColor}">${index}</th>
                         <td class="edit-entry" contenteditable="true" id="description-${index}">${record.description}</td>
                         <td class="edit-entry" contenteditable="true" id="total-${index}">${record.total}</td>`)
 
@@ -89,14 +98,22 @@ function applyRecord(record, index) {
     spliter.membersForEach((member) => {
         selection.append(`<option value="${member}">${member}</option>`)
         if (member === record.payee) {
-            recordRow.append(`<td><input class="form-check-input" type="checkbox" disabled="disabled" aria-label="Checkbox for following text input" id="checkbox-${index}-${member}"></td>`)
+            recordRow.append(`<td><input class="form-check-input" type="checkbox"  aria-label="Checkbox for following text input" id="checkbox-${index}-${member}"></td>`)
+
         } else {
             recordRow.append(`<td><input class="form-check-input" type="checkbox" aria-label="Checkbox for following text input" id="checkbox-${index}-${member}"></td>`)
         }
 
         // Check for payers in the record
-        $(`#checkbox-${index}-${member}`).prop("checked", record.payers.has(member)||record.payee === member).change(onPayerChange);
+
+        $(`#checkbox-${index}-${member}`)
+            .prop("checked", record.payers.has(member))
+            .prop("disabled", !Setting.isPayeeCheckable&& record.payee === member)
+            .change(onPayerChange)
     })
+
+    //Add payee as the default payer
+    // spliter.setRecordPayers(index, new Set([spliter.getRecordPayee(index)]))
 
     //Select the stored payee
     selection.val(record.payee)
@@ -110,12 +127,18 @@ function applyRecord(record, index) {
     $(`#total-${index}`).on("input", onTotalChange)
     selection.change(onPayeeChange)
     $(`#delete-button-${index}`).click(deleteButtonClick).contextmenu(deleteButtonRightClick)
-
     updateAllTooltip()
+
+    // console.log(record)
 }
 
 function addNewRecord() {
-    applyRecord(spliter.addRecord("", new Set(), "", 0, "", ""), spliter.getRecordSize()-1)
+    applyRecord(spliter.addRecord("", new Set(), "", 0, "", "", false), spliter.getRecordSize()-1)
+    saveLocalStorage()
+}
+
+function addNewGratuity() {
+    applyRecord(spliter.addRecord("", new Set(), "", 0, "", "", true), spliter.getRecordSize()-1)
     saveLocalStorage()
 }
 
@@ -136,14 +159,21 @@ function deleteAllRecords() {
 }
 
 function applyStats() {
-    spliter.updateRelations()
+    // console.log(spliter._data.relations)
+    let taxMultiplier = 1.0
+    if (Setting.isTaxEnabled) {
+        taxMultiplier += Setting.taxRate*0.01
+    }
+    spliter.updateRelations(taxMultiplier)
     let statsTableBody = $("#stats-table-body").empty()
     statsTableBody.append(`
                         <tr>
                         <th>Total spent by group:</th>
-                        <td>${spliter.calculatorGroupTotal()}</td>
+                        <td>${spliter.calculatorGroupTotal(taxMultiplier)}</td>
                         </tr>
     `)
+
+
     spliter.relationsForEach((relation) => {
         if (relation.absolute()!==0) {
             statsTableBody.append(`
@@ -160,6 +190,26 @@ function applyStats() {
     })
 }
 
+function updateSetting() {
+    $("#enable-tax-checkbox").prop("checked", Setting.isTaxEnabled)
+    $("#payee-checkable-checkbox").prop("checked", Setting.isPayeeCheckable)
+    $("#tax-input").val(Setting.taxRate)
+}
+
+function importFromJSON(json) {
+    let importedData = JSON.parse(json.toString())
+    console.log(importedData)
+    spliter.import(importedData[0], importedData[1])
+    Setting = importedData[2]
+}
+
+function exportToJSON()
+{
+    let exportList = spliter.export()
+    exportList.push(Setting)
+    return JSON.stringify(exportList)
+}
+
 function importFile(file) {
     if (file.type && !file.type.endsWith('json')){
         console.log(file.type)
@@ -168,8 +218,7 @@ function importFile(file) {
 
     const reader = new FileReader()
     reader.addEventListener('load', (event)=>{
-        const result = event.target.result;
-        spliter.importFromJSON(result.toString())
+        importFromJSON(event.target.result);
         resetTable()
         saveLocalStorage()
     })

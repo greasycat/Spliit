@@ -1,15 +1,18 @@
-let isEntrySelected = false;
-let currentSelectedEntry = null;
 let spliter = new Spliter();
-let names = []
 let tooltipMap = new Map()
-const localStorageName = 'splitter'
+let temporaryNames = []
+let currentRow
 
-function resetNewSplitModal() {
-    $("#memberNumber").val("")
-    $("#memberNames").empty()
-    $('#inputAlerts').empty()
+let Setting = {
+    localStorageName: 'splitter',
+    isPayeeCheckable: false,
+    currentRow: undefined,
+    filename: "data.json",
+    isTaxEnabled: false,
+    taxRate: 7.75,
 }
+
+
 
 function checkCacheSupport() {
     if (!('localStorage' in window))
@@ -21,7 +24,6 @@ $(document).ready(() => {
     checkCacheSupport()
 
     $(".edit-entry")
-        .dblclick(entryDoubleClick)
         .mouseenter(entryMouseEnter)
         .mouseleave(entryMouseLeave)
     $(document).keypress(enterKeyPress);
@@ -32,13 +34,19 @@ $(document).ready(() => {
 
     // Record operations
     $("#add-record").mouseenter(entryMouseEnter).mouseleave(entryMouseLeave)
-    $("#newRecordButton").click(addNewRecord)
+    $("#new-record-button").click(addNewRecord)
+    $("#new-gratuity").click(addNewGratuity)
     $("#delete-confirm-button").click(deleteConfirmButtonClick)
     $("#delete-all-confirm-button").click(deleteAllConfirmButtonClick)
 
     // Stats tab
     $("#stats-tab").on("click", onStatsTabClick)
     $("#stats-update-button").click(applyStats)
+
+    //Setting tab
+    $("#enable-tax-checkbox").click(onTaxCheckboxClick)
+    $("#tax-input").on("input", onTaxInput)
+    $("#payee-checkable-checkbox").click(onPayeeCheckableCheckboxClick)
 
     //Import and Export
     $("#save-button").click(saveButtonClick)
@@ -50,19 +58,19 @@ $(document).ready(() => {
 
     spliter = new Spliter()
 
-    if (localStorage[localStorageName] !== undefined) {
-        spliter.importFromJSON(localStorage[localStorageName])
+    if (localStorage[Setting.localStorageName] !== undefined) {
+        importFromJSON(localStorage[Setting.localStorageName])
         resetTable()
     } else {
         let defaultMembers = new Set(["A", "B", "C", "D"])
         spliter.newTable(defaultMembers)
-        spliter.addRecord("Example: Coke", new Set(["B", "C"]), "A", 3.9, "", "")
-        spliter.addRecord("Example: Banana", new Set(["C"]), "B", 4, "", "")
+        spliter.addRecord("Example: Coke", new Set(["A","B", "C"]), "A", 3.9, "", "")
+        spliter.addRecord("Example: Banana", new Set(["B","C"]), "B", 4, "", "")
         resetTable()
 
     }
 })
 
 function saveLocalStorage() {
-    localStorage[localStorageName] = spliter.exportToJSON()
+    localStorage[Setting.localStorageName] = exportToJSON()
 }
