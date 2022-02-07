@@ -11,4 +11,4 @@ This app help you split your bills with friends.
 1. Save to/Load from a json
 2. Enable Tax calculation
 
-[Try it on my Github Page](https://i.imgur.com/6Kn4psc.jpg)
+[Try it on my Github Page](https://greasycat.github.io/spliit/)
