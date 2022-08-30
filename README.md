@@ -1,3 +1,5 @@
+[Click here to try it](https://www.greasycat.xyz/html/spliit/)
+
 # Spliit
 This app help you split your bills with friends. 
 
@@ -11,4 +13,3 @@ This app help you split your bills with friends.
 1. Save to/Load from a json
 2. Enable Tax calculation
 
-[Try it on my Github Page](https://greasycat.github.io/spliit/)
